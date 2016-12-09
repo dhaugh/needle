@@ -6,11 +6,15 @@ import re
 
 def run_otool(query, binary_file, grep=None):
     """Run otool against a specific architecture."""
-    cmd = 'otool {query} {app}'.format(query=query, app=binary_file)
-    cmd = '%s | grep -Ei "%s"' % (cmd, grep) if grep else cmd
-    return subprocess.check_output(cmd, shell=True)
+    otool_cmd = ['otool', query, binary_file]
+    if grep:
+    	grep_cmd = ['grep', '-Ei', grep]
+    	otool_proc = subprocess.Popen(otool_cmd, stdout=subprocess.PIPE, shell=False)
+    	grep_proc = subprocess.Popen(grep_cmd, stdin=otool_proc.stdout, stdout=subprocess.PIPE, shell=False)
+    	return grep_proc.communicate()[0]
+    else:
+        return subprocess.check_output(otool_cmd)
      
-
 
 def check_flag(line, testname, flag):
     """Extract result of the test."""
@@ -24,7 +28,6 @@ def check_flag(line, testname, flag):
 # ==================================================================================================================
 def check_cryptid(binary_filepath):
     out = run_otool('-l', binary_filepath, grep='cryptid')
-    print(out)
     return check_flag(out, "Encrypted", "cryptid(\s)+1")
 
 
@@ -42,9 +45,9 @@ def check_stack_canaries(binary_filepath):
     return check_flag(out, "Stack Canaries", "___stack_chk_")
 
 
-def run(binary_file_path):
-     testname_result_tups = map(lambda f: f(binary_file_path), [check_cryptid, check_pie, check_arc, check_stack_canaries])
-     print(testname_result_tups)
+def run(binary_file_path):  # -> [(Test name, Test passed)...]
+    testname_result_tups = map(lambda f: f(binary_file_path), [check_cryptid, check_pie, check_arc, check_stack_canaries])
+    print(testname_result_tups)
 
 
 if __name__ == '__main__': 
