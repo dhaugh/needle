@@ -16,3 +16,11 @@ def plist_to_xml(plist_filepath):  # -> (filepath_of_new_xml_file, contents_of_n
     xml_contents = open(new_xml_filepath).read()
     xml_contents_as_dict = plistlib.readPlistFromString(xml_contents)
     return new_xml_filepath, xml_contents, xml_contents_as_dict
+
+
+def find_file(root_dir, regex):  # -> [filepath_string]
+    cmd = ['find', root_dir, '-type', 'f', '-name', regex]
+    out = subprocess.check_output(cmd)
+    out = out.split('\n')
+    out = filter(None, out)
+    return out

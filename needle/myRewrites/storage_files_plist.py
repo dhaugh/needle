@@ -4,14 +4,11 @@ import subprocess
 import sys
 
 from util import plist_to_xml
+from util import find_file
 
 
 def find_all_plists(root_dir):
-    cmd = ['find', root_dir, '-type', 'f', '-name', '*.plist']
-    out = subprocess.check_output(cmd)
-    plist_files = out.split('\n')
-    plist_files = filter(None, plist_files)
-    return plist_files
+    return find_file(root_dir, '*.plist')
 
 
 def run(root_dir):

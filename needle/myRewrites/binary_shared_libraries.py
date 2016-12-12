@@ -1,10 +1,8 @@
 import sys
 import subprocess
 
-from find_tools import find_otool
-
 def run(binary_filepath):
-    cmd = [find_otool(), '-L', binary_filepath]
+    cmd = ['otool', '-L', binary_filepath]
     out = subprocess.check_output(cmd)
     out = out.split('\n\t')
     print(out)
